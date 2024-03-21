@@ -7,7 +7,6 @@ import 'package:nlp/src/date_time/date_time_extraction.dart';
 import 'package:nlp/src/date_time/date_time_parsing.dart';
 import 'package:nlp/src/date_time/datetime_utility_configuration.dart';
 import 'package:nlp/src/date_time/english/english_date_time_utility_configuration.dart';
-import 'package:nlp/src/date_time/english/english_holiday_extractor_configuration.dart';
 import 'package:nlp/src/date_time/english_date_time.dart';
 import 'package:nlp/src/date_time/english_date_time_parser.dart';
 import 'package:nlp/src/duration/duration.dart';

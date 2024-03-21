@@ -33,7 +33,7 @@ class BaseMergedDateTimeExtractor implements IDateTimeExtractor {
     }
 
     var originText = text;
-    List<MatchResult<String>>? superfluousWordMatches = null;
+    List<MatchResult<String>>? superfluousWordMatches;
 
     // Push
     // if ((config.options & DateTimeOptions.EnablePreview) != 0)
@@ -118,7 +118,6 @@ class BaseMergedDateTimeExtractor implements IDateTimeExtractor {
     if (tokenIndex != null) {
       // Avoid adding mod for ambiguity cases, such as "from" in "from ... to ..." should not add mod
       if (potentialAmbiguity &&
-          config.getAmbiguousRangeModifierPrefix() != null &&
           config.getAmbiguousRangeModifierPrefix().hasMatch(beforeStr.substring(tokenIndex))) {
         var matches = RegExpComposer.getMatchesSimple(config.getPotentialAmbiguousRangeRegex(), text);
 
@@ -164,7 +163,7 @@ class BaseMergedDateTimeExtractor implements IDateTimeExtractor {
 
   Metadata AssignModMetadata(Metadata? metadata) {
     if (metadata == null) {
-      metadata = new Metadata(hasMod: true);
+      metadata = Metadata(hasMod: true);
     } else {
       metadata.hasMod = true;
     }
@@ -279,12 +278,12 @@ class BaseMergedDateTimeExtractor implements IDateTimeExtractor {
         if (match != null) {
           var newTime = match.getGroup("newTime");
           var numRes = config.integerExtractor.extract(newTime.value);
-          if (numRes.length == 0) {
+          if (numRes.isEmpty) {
             continue;
           }
 
           var startPosition = extractResult.start + extractResult.length + newTime.index;
-          tokens.add(new Token(startPosition, startPosition + newTime.length));
+          tokens.add(Token(startPosition, startPosition + newTime.length));
         }
       }
     }

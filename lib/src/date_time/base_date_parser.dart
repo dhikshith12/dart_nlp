@@ -910,7 +910,7 @@ class BaseDateParser implements IDateTimeParser {
     }
 
     // For LUIS format value string
-    var futureDate = DateUtil.createSafeDate(year!, month, day);
+    var futureDate = DateUtil.createSafeDate(year, month, day);
     var pastDate = DateUtil.createSafeDate(year, month, day);
 
     if (ambiguous) {

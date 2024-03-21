@@ -1,6 +1,5 @@
 import 'package:nlp/src/core/extraction.dart';
 import 'package:nlp/src/core/parser.dart';
-import 'package:nlp/src/core/task_mode_processing.dart';
 import 'package:nlp/src/date_time/constants.dart';
 
 import 'package:nlp/src/date_time/date_time_parsing.dart';
@@ -25,7 +24,7 @@ class BaseMergedDateTimeParser implements IDateTimeParser {
   @override
   DateTimeParseResult parseDateTime(ExtractResult er, DateTime refTime) {
     var referenceTime = refTime;
-    DateTimeParseResult? pr = null;
+    DateTimeParseResult? pr;
 
     var origintext = er.text;
     // TODO: bring back
@@ -164,9 +163,6 @@ class BaseMergedDateTimeParser implements IDateTimeParser {
 
     // Parse extracted datetime mention
     pr = parseExtractedResult(er, referenceTime);
-    if (pr == null) {
-      return DateTimeParseResult(start: 0, length: 0, text: '');
-    }
 
     // Apply processed modifiers
     // Pop, restore the MOD string
@@ -276,11 +272,9 @@ class BaseMergedDateTimeParser implements IDateTimeParser {
     // }
 
     if (config.options.match(DateTimeOptions.EnablePreview)) {
-      if (pr != null) {
-        pr.length += origintext.length - pr.text.length;
-        pr.text = origintext;
-      }
-    }
+      pr.length += origintext.length - pr.text.length;
+      pr.text = origintext;
+        }
 
     /* Modification of datetime value under tasksmode,
              for example when input text is 9 april at 2 pm and current datetime value is 9 april 2022 1pm,
@@ -299,7 +293,7 @@ class BaseMergedDateTimeParser implements IDateTimeParser {
 
   // @TODO move to MergedParserUtil (if possible)
   DateTimeParseResult parseExtractedResult(ExtractResult extractResult, DateTime referenceTime) {
-    DateTimeParseResult? parseResult = null;
+    DateTimeParseResult? parseResult;
     switch (extractResult.type) {
       case DateTimeConstants.SYS_DATETIME_DATE:
         // if (extractResult.metadata != null &&
@@ -358,7 +352,7 @@ class BaseMergedDateTimeParser implements IDateTimeParser {
         return parseExtractedResult(extractResult, referenceTime);
     }
 
-    return parseResult!;
+    return parseResult;
   }
 
   @override

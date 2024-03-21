@@ -563,50 +563,48 @@ class BaseDatePeriodExtractor implements IDateTimeExtractor {
     datePoints.addAll(ordinalExtractions
         .where((o) => datePoints.where((er) => er.isOverlap(o) && o.metadata?.isOrdinalRelative != true).isEmpty));
 
-    if (datePoints.length < 1) {
+    if (datePoints.isEmpty) {
       return ret;
     }
 
     for (var extractionResult in datePoints) {
-      if (extractionResult.start != null && extractionResult.length != null) {
-        var beforeString = text.substring(0, extractionResult.start);
-        var afterString = text.substring(extractionResult.start + extractionResult.length, text.length);
+      var beforeString = text.substring(0, extractionResult.start);
+      var afterString = text.substring(extractionResult.start + extractionResult.length, text.length);
 
-        ret.addAll(GetTokenForRegexMatching(beforeString, config.WeekOfRegex(), extractionResult, true));
-        ret.addAll(GetTokenForRegexMatching(beforeString, config.MonthOfRegex(), extractionResult, true));
+      ret.addAll(GetTokenForRegexMatching(beforeString, config.WeekOfRegex(), extractionResult, true));
+      ret.addAll(GetTokenForRegexMatching(beforeString, config.MonthOfRegex(), extractionResult, true));
+
+      // Check also afterString
+      if (config.CheckBothBeforeAfter()) {
+        ret.addAll(GetTokenForRegexMatching(afterString, config.WeekOfRegex(), extractionResult, false));
+        ret.addAll(GetTokenForRegexMatching(afterString, config.MonthOfRegex(), extractionResult, false));
+      }
+
+      // Cases like "3 days from today", "2 weeks before yesterday", "3 months after tomorrow"
+      if (IsRelativeDurationDate(extractionResult)) {
+        ret.addAll(GetTokenForRegexMatching(beforeString, config.LessThanRegex(), extractionResult, true));
+        ret.addAll(GetTokenForRegexMatching(beforeString, config.MoreThanRegex(), extractionResult, true));
 
         // Check also afterString
         if (config.CheckBothBeforeAfter()) {
-          ret.addAll(GetTokenForRegexMatching(afterString, config.WeekOfRegex(), extractionResult, false));
-          ret.addAll(GetTokenForRegexMatching(afterString, config.MonthOfRegex(), extractionResult, false));
+          ret.addAll(GetTokenForRegexMatching(afterString, config.LessThanRegex(), extractionResult, false));
+          ret.addAll(GetTokenForRegexMatching(afterString, config.MoreThanRegex(), extractionResult, false));
         }
 
-        // Cases like "3 days from today", "2 weeks before yesterday", "3 months after tomorrow"
-        if (IsRelativeDurationDate(extractionResult)) {
-          ret.addAll(GetTokenForRegexMatching(beforeString, config.LessThanRegex(), extractionResult, true));
-          ret.addAll(GetTokenForRegexMatching(beforeString, config.MoreThanRegex(), extractionResult, true));
+        // For "within" case, only duration with relative to "today" or "now" makes sense
+        // Cases like "within 3 days from yesterday/tomorrow" does not make any sense
+        if (IsDateRelativeToNowOrToday(extractionResult)) {
+          var tokens = ExtractWithinNextPrefix(beforeString, extractionResult, true);
+          ret.addAll(tokens);
 
-          // Check also afterString
-          if (config.CheckBothBeforeAfter()) {
-            ret.addAll(GetTokenForRegexMatching(afterString, config.LessThanRegex(), extractionResult, false));
-            ret.addAll(GetTokenForRegexMatching(afterString, config.MoreThanRegex(), extractionResult, false));
-          }
-
-          // For "within" case, only duration with relative to "today" or "now" makes sense
-          // Cases like "within 3 days from yesterday/tomorrow" does not make any sense
-          if (IsDateRelativeToNowOrToday(extractionResult)) {
-            var tokens = ExtractWithinNextPrefix(beforeString, extractionResult, true);
+          // check also afterString
+          if (config.CheckBothBeforeAfter() && tokens.isEmpty) {
+            tokens = ExtractWithinNextPrefix(afterString, extractionResult, false);
             ret.addAll(tokens);
-
-            // check also afterString
-            if (config.CheckBothBeforeAfter() && tokens.isEmpty) {
-              tokens = ExtractWithinNextPrefix(afterString, extractionResult, false);
-              ret.addAll(tokens);
-            }
           }
         }
       }
-    }
+        }
 
     return ret;
   }

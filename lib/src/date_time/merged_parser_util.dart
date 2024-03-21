@@ -20,7 +20,7 @@ class MergedParserUtil {
     var combinedMod = newMod;
 
     if (originalMod.isNotEmpty && originalMod != newMod) {
-      combinedMod = "${newMod}-${originalMod}";
+      combinedMod = "$newMod-$originalMod";
     }
 
     return combinedMod;
@@ -246,7 +246,7 @@ class MergedParserUtil {
     slot.value = DateTimeModel.dateTimeResolution(slot, config);
 
     // Change the type at last for the after or before modes
-    slot.type = "${ParserTypeName}.${DetermineDateTimeType(slot.type ?? '', hasMod, config)}";
+    slot.type = "$ParserTypeName.${DetermineDateTimeType(slot.type ?? '', hasMod, config)}";
     return slot;
   }
 
@@ -500,7 +500,7 @@ class MergedParserUtil {
       }
     } else {
       slot.value = DateTimeModel.dateTimeResolution(slot, config);
-      slot.type = "${ParserTypeName}.${DetermineDateTimeType(slot.type ?? '', false, config)}";
+      slot.type = "$ParserTypeName.${DetermineDateTimeType(slot.type ?? '', false, config)}";
       results.add(slot);
     }
 

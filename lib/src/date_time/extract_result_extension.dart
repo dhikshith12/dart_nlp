@@ -27,36 +27,34 @@ class ExtractResultExtension {
 
     var mergedResults = <ExtractResult>[];
     for (var result in results) {
-      if (result != null) {
-        bool shouldAdd = true;
-        var resStart = result.start;
-        var resEnd = resStart + result.length;
-        for (var index = 0; index < mergedResults.length && shouldAdd; index++) {
-          var mergedStart = mergedResults[index].start;
-          var mergedEnd = mergedStart + mergedResults[index].length;
+      bool shouldAdd = true;
+      var resStart = result.start;
+      var resEnd = resStart + result.length;
+      for (var index = 0; index < mergedResults.length && shouldAdd; index++) {
+        var mergedStart = mergedResults[index].start;
+        var mergedEnd = mergedStart + mergedResults[index].length;
 
-          // It is included in one of the current results
-          if (resStart >= mergedStart && resEnd <= mergedEnd) {
-            shouldAdd = false;
-          }
-
-          // If it contains overlaps
-          if (resStart > mergedStart && resStart < mergedEnd) {
-            shouldAdd = false;
-          }
-
-          // It includes one of the results and should replace the included one
-          if (resStart <= mergedStart && resEnd >= mergedEnd) {
-            shouldAdd = false;
-            mergedResults[index] = result;
-          }
+        // It is included in one of the current results
+        if (resStart >= mergedStart && resEnd <= mergedEnd) {
+          shouldAdd = false;
         }
 
-        if (shouldAdd) {
-          mergedResults.add(result);
+        // If it contains overlaps
+        if (resStart > mergedStart && resStart < mergedEnd) {
+          shouldAdd = false;
+        }
+
+        // It includes one of the results and should replace the included one
+        if (resStart <= mergedStart && resEnd >= mergedEnd) {
+          shouldAdd = false;
+          mergedResults[index] = result;
         }
       }
-    }
+
+      if (shouldAdd) {
+        mergedResults.add(result);
+      }
+        }
 
     return mergedResults;
   }

@@ -1,7 +1,6 @@
 // ignore_for_file: constant_identifier_names
 
 import 'package:nlp/nlp.dart';
-import 'package:nlp/src/core/parser.dart';
 import 'package:nlp/src/core/string_utility.dart';
 import 'package:nlp/src/core/timex_utility.dart';
 import 'package:nlp/src/date_time/date_time_parsing.dart';

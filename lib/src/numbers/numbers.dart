@@ -283,7 +283,7 @@ abstract class BaseNumberExtractor implements IExtractor {
     String thousandsMark = RegExp.escape(type.thousandsMark);
     String decimalsMark = RegExp.escape(type.decimalsMark);
 
-    String regexDefinition = type.decimalsMark == '\0'
+    String regexDefinition = type.decimalsMark == '0'
         ? BaseNumbers.IntegerRegexDefinition(placeholder, thousandsMark)
         : BaseNumbers.DoubleRegexDefinition(placeholder, thousandsMark, decimalsMark);
 
@@ -295,19 +295,19 @@ class LongFormatType {
   // Reference Value : 1234567.89
 
   // 1,234,567
-  static LongFormatType IntegerNumComma = LongFormatType(',', '\0');
+  static LongFormatType IntegerNumComma = LongFormatType(',', '0');
 
   // 1.234.567
-  static LongFormatType IntegerNumDot = LongFormatType('.', '\0');
+  static LongFormatType IntegerNumDot = LongFormatType('.', '0');
 
   // 1 234 567
-  static LongFormatType IntegerNumBlank = LongFormatType(' ', '\0');
+  static LongFormatType IntegerNumBlank = LongFormatType(' ', '0');
 
   // 1 234 567
-  static LongFormatType IntegerNumNoBreakSpace = LongFormatType(Constants.NO_BREAK_SPACE, '\0');
+  static LongFormatType IntegerNumNoBreakSpace = LongFormatType(Constants.NO_BREAK_SPACE, '0');
 
   // 1'234'567
-  static LongFormatType IntegerNumQuote = LongFormatType('\'', '\0');
+  static LongFormatType IntegerNumQuote = LongFormatType('\'', '0');
 
   // 1,234,567.89
   static LongFormatType DoubleNumCommaDot = LongFormatType(',', '.');

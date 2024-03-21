@@ -154,7 +154,7 @@ class BaseSetExtractor implements IDateTimeExtractor {
         timeErs = timePeriodErs;
       }
 
-      if (beforeMatch.length > 0) {
+      if (beforeMatch.isNotEmpty) {
         var beforeMatchInd = beforeMatch[0].start;
         if (timeBeforeErs.isNotEmpty) {
           beforeMatchInd = min(beforeMatchInd, timeBeforeErs[0].start);
@@ -168,7 +168,7 @@ class BaseSetExtractor implements IDateTimeExtractor {
         ret.add(Token(beforeMatchInd, erEnd));
       }
 
-      if (match.length > 0) {
+      if (match.isNotEmpty) {
         var matchInd = match[0].length + match[0].start;
         if (timeErs.isNotEmpty) {
           matchInd = max(matchInd, timeErs[0].start + timeErs[0].length);
@@ -217,7 +217,7 @@ class BaseSetExtractor implements IDateTimeExtractor {
       for (var er in ers) {
         if (er.start <= match.index && er.text.contains(match.getGroup("weekday").value)) {
           var len = (er.length ?? 0) + del;
-          if (match.getGroup(DateTimeConstants.PrefixGroupName).value.length > 0) {
+          if (match.getGroup(DateTimeConstants.PrefixGroupName).value.isNotEmpty) {
             len += match.getGroup(DateTimeConstants.PrefixGroupName).value.length;
           }
 

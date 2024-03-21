@@ -185,7 +185,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
     } else if (match.getGroup("MiddleOf").captures.length >= 2 && match.getGroup("MiddleOf").captures[i].length > 0) {
       var startDate = date.$1;
       var endDate = date.$2;
-      var shift = (endDate.difference(startDate).inDays / 2).toInt();
+      var shift = endDate.difference(startDate).inDays ~/ 2;
       result = startDate.AddDays(shift);
     } else {
       result = date.$1;
@@ -286,7 +286,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
           }
 
           if (futureBegin.isAfter(futureEnd)) {
-            if (dateContext == null || dateContext.IsEmpty()) {
+            if (dateContext.IsEmpty()) {
               futureBegin = pastBegin;
             } else {
               futureBegin = DateContext.SwiftDateObject(futureBegin, futureEnd);
@@ -294,7 +294,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
           }
 
           if (pastEnd.isBefore(pastBegin)) {
-            if (dateContext == null || dateContext.IsEmpty()) {
+            if (dateContext.IsEmpty()) {
               pastEnd = futureEnd;
             } else {
               pastBegin = DateContext.SwiftDateObject(pastBegin, pastEnd);
@@ -522,18 +522,16 @@ class BaseDatePeriodParser implements IDateTimeParser {
       }
 
       if (weekPrefix.isNotEmpty) {
-        er.text = weekPrefix + " " + er.text;
+        er.text = "$weekPrefix ${er.text}";
       }
 
       var pr = config.DateParser().parseDateTime(er, referenceDate);
 
-      if (pr != null) {
-        ret.timex = "(${pr.timexStr}";
-        ret.futureValue = (pr.value as DateTimeResolutionResult).futureValue as DateTime;
-        ret.pastValue = (pr.value as DateTimeResolutionResult).pastValue as DateTime;
-        ret.success = true;
-      }
-
+      ret.timex = "(${pr.timexStr}";
+      ret.futureValue = (pr.value as DateTimeResolutionResult).futureValue as DateTime;
+      ret.pastValue = (pr.value as DateTimeResolutionResult).pastValue as DateTime;
+      ret.success = true;
+    
       // Expressions like "today", "tomorrow",... should keep their original year
       if (dateContext != null && !config.SpecialDayRegex().hasMatch(er.text)) {
         ret = dateContext.ProcessDateEntityResolution(ret);
@@ -563,22 +561,16 @@ class BaseDatePeriodParser implements IDateTimeParser {
     var match = RegExpComposer.matchExact(config.MonthFrontBetweenRegex(), text, true);
     String beginLuisStr, endLuisStr;
 
-    if (match == null) {
-      match = RegExpComposer.matchExact(config.BetweenRegex(), text, true);
-    }
+    match ??= RegExpComposer.matchExact(config.BetweenRegex(), text, true);
 
-    if (match == null) {
-      match = RegExpComposer.matchExact(config.MonthFrontSimpleCasesRegex(), text, true);
-    }
+    match ??= RegExpComposer.matchExact(config.MonthFrontSimpleCasesRegex(), text, true);
 
-    if (match == null) {
-      match = RegExpComposer.matchExact(config.SimpleCasesRegex(), text, true);
-    }
+    match ??= RegExpComposer.matchExact(config.SimpleCasesRegex(), text, true);
 
     if (match != null) {
       var days = match.getGroup(DateTimeConstants.DayGroupName);
       var writtenDay = match.getGroup(DateTimeConstants.OrdinalGroupName);
-      if (writtenDay.captures.length > 0 && days.captures[0].value == writtenDay.captures[0].value) {
+      if (writtenDay.captures.isNotEmpty && days.captures[0].value == writtenDay.captures[0].value) {
         // Parse beginDay in written form
         var dayMatch = writtenDay.captures[0];
         var dayEr = ExtractResult(
@@ -594,7 +586,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
         beginDay = config.DayOfMonth()[days.captures[0].value]!;
       }
 
-      if (writtenDay.captures.length > 0 &&
+      if (writtenDay.captures.isNotEmpty &&
           days.captures[1].value == writtenDay.captures[writtenDay.captures.length - 1].value) {
         // Parse endDay in written form
         var dayMatch = writtenDay.captures[writtenDay.captures.length - 1];
@@ -692,9 +684,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
     var trimmedText = text.trim();
     var match = RegExpComposer.matchExact(config.OneWordPeriodRegex(), trimmedText, true);
 
-    if (match == null) {
-      match = RegExpComposer.matchExact(config.LaterEarlyPeriodRegex(), trimmedText, true);
-    }
+    match ??= RegExpComposer.matchExact(config.LaterEarlyPeriodRegex(), trimmedText, true);
 
     // For cases "that week|month|year"
     if (match == null) {
@@ -754,7 +744,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
 
       if (config.IsMonthToDate(trimmedText)) {
         ret.timex =
-            referenceDate.year.toString().padLeft(4, '0') + "-" + referenceDate.month.toString().padLeft(2, '0');
+            "${referenceDate.year.toString().padLeft(4, '0')}-${referenceDate.month.toString().padLeft(2, '0')}";
         ret.futureValue =
             ret.pastValue = (DateUtil.createSafeDate(referenceDate.year, referenceDate.month, 1), referenceDate);
         ret.success = true;
@@ -776,11 +766,11 @@ class BaseDatePeriodParser implements IDateTimeParser {
         month = config.MonthOfYear()[monthStr]!;
 
         if (swift >= -1) {
-          ret.timex = (referenceDate.year + swift).toString().padLeft(4, '0') + "-" + month.toString().padLeft(2, '0');
+          ret.timex = "${(referenceDate.year + swift).toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}";
           year = year + swift;
           futureYear = pastYear = year;
         } else {
-          ret.timex = "XXXX-" + month.toString().padLeft(2, '0');
+          ret.timex = "XXXX-${month.toString().padLeft(2, '0')}";
           if (month < referenceDate.month) {
             futureYear++;
           }
@@ -1017,9 +1007,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
 
     var match = RegExpComposer.matchExact(config.MonthWithYear(), text, true);
 
-    if (match == null) {
-      match = RegExpComposer.matchExact(config.MonthNumWithYear(), text, true);
-    }
+    match ??= RegExpComposer.matchExact(config.MonthNumWithYear(), text, true);
 
     if (match != null) {
       var monthStr = match.getGroup("month").value;
@@ -1073,21 +1061,17 @@ class BaseDatePeriodParser implements IDateTimeParser {
       var matches = RegExpComposer.getMatchesSimple(config.YearRegex(), text);
       if (matches.length == 2) {
         // (from|during|in|between)? 2012 (till|to|until|through|-) 2015
-        if (matches[0] != null) {
-          beginYear = config.DateExtractor().getYearFromText(matches[0]);
-          if (!(beginYear >= DateTimeConstants.MinYearNum && beginYear <= DateTimeConstants.MaxYearNum)) {
-            beginYear = DateTimeConstants.InvalidYear;
-          }
+        beginYear = config.DateExtractor().getYearFromText(matches[0]);
+        if (!(beginYear >= DateTimeConstants.MinYearNum && beginYear <= DateTimeConstants.MaxYearNum)) {
+          beginYear = DateTimeConstants.InvalidYear;
         }
-
-        if (matches[1] != null) {
-          final secondYearMatch = RegExpComposer.firstMatch(config.YearRegex(), matches[1].value);
-          endYear = (this.config.DateExtractor()).getYearFromText(secondYearMatch!);
-          if (!(endYear >= DateTimeConstants.MinYearNum && endYear <= DateTimeConstants.MaxYearNum)) {
-            endYear = DateTimeConstants.InvalidYear;
-          }
+      
+        final secondYearMatch = RegExpComposer.firstMatch(config.YearRegex(), matches[1].value);
+        endYear = (config.DateExtractor()).getYearFromText(secondYearMatch!);
+        if (!(endYear >= DateTimeConstants.MinYearNum && endYear <= DateTimeConstants.MaxYearNum)) {
+          endYear = DateTimeConstants.InvalidYear;
         }
-      }
+            }
 
       if (beginYear != DateTimeConstants.InvalidYear && endYear != DateTimeConstants.InvalidYear) {
         var beginDay = DateUtil.createSafeDate(beginYear, 1, 1);
@@ -1158,7 +1142,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
         er[1].start -= config.TokenBeforeDate().length;
       } else {
         var nowPr = ParseNowAsDate(text, referenceDate);
-        if (nowPr.value == null || er.length < 1) {
+        if (nowPr.value == null || er.isEmpty) {
           return ret;
         }
 
@@ -1188,11 +1172,11 @@ class BaseDatePeriodParser implements IDateTimeParser {
       // Check if weekPrefix is already included in the extractions otherwise include it
       if (weekPrefix?.isNotEmpty == true) {
         if (!er[0].text.contains(weekPrefix!)) {
-          er[0].text = weekPrefix + " " + er[0].text;
+          er[0].text = "$weekPrefix ${er[0].text}";
         }
 
         if (!er[1].text.contains(weekPrefix)) {
-          er[1].text = weekPrefix + " " + er[1].text;
+          er[1].text = "$weekPrefix ${er[1].text}";
         }
       }
 
@@ -1277,7 +1261,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
         length: match.length,
         value: retNow,
         type: DateTimeConstants.SYS_DATETIME_DATE,
-        timexStr: retNow == null ? '' : (retNow as DateTimeResolutionResult).timex,
+        timexStr: retNow == null ? '' : (retNow).timex,
       );
     }
 
@@ -1292,7 +1276,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
     var restNowSunday = false;
 
     var durationErs = config.DurationExtractor().extractDateTime(text, referenceDate);
-    if (durationErs.length > 0) {
+    if (durationErs.isNotEmpty) {
       var durationPr = config.DurationParser().parse(durationErs[0])!;
       var beforeStr = text.substring(0, durationPr.start ?? 0).trim();
       var afterStr = text.substring((durationPr.start ?? 0) + (durationPr.length ?? 0)).trim();
@@ -1305,7 +1289,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
         var numberEr = numbersInSuffix.first;
         var numberText = numberEr.text;
         var durationText = durationErs[0].text;
-        var combinedText = "${numberText} ${durationText}";
+        var combinedText = "$numberText $durationText";
         var combinedDurationEr = config.DurationExtractor().extractDateTime(combinedText, referenceDate);
 
         if (combinedDurationEr.isNotEmpty) {
@@ -1385,7 +1369,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
           // Change the duration value and the beginDate
           var unit = durationResult.timex?.substring(durationResult.timex!.length - 1) ?? '';
 
-          durationResult.timex = "P1" + unit;
+          durationResult.timex = "P1$unit";
           beginDate = DurationParsingUtil.shiftDateTime(durationResult.timex ?? '', modAndDateResult.EndDate, false);
           endDate = modAndDateResult.EndDate;
         }
@@ -1461,14 +1445,14 @@ class BaseDatePeriodParser implements IDateTimeParser {
           endDate = DateUtil.createSafeDate(beginDate.year, beginDate.month, 1);
           endDate = endDate.AddMonths(1).AddDays(-1);
           diff = endDate.day - beginDate.day + 1;
-          durationTimex = "P" + diff.toString() + DateTimeConstants.TimexDay;
+          durationTimex = "P$diff${DateTimeConstants.TimexDay}";
           break;
 
         case DateTimeConstants.TimexYear:
           endDate = DateUtil.createSafeDate(beginDate.year, 12, 1);
           endDate = endDate.AddMonths(1).AddDays(-1);
           diff = endDate.dayOfYear - beginDate.dayOfYear + 1;
-          durationTimex = "P" + diff.toString() + DateTimeConstants.TimexDay;
+          durationTimex = "P$diff${DateTimeConstants.TimexDay}";
           break;
       }
     }
@@ -1478,7 +1462,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
 
       // TODO: analyse upper code and use GenerateDatePeriodTimex to create this timex.
       ret.timex =
-          "(${DateTimeFormatUtil.luisDateFromDateTime(beginDate)},${DateTimeFormatUtil.luisDateFromDateTime(endDate)},${durationTimex})";
+          "(${DateTimeFormatUtil.luisDateFromDateTime(beginDate)},${DateTimeFormatUtil.luisDateFromDateTime(endDate)},$durationTimex)";
       ret.futureValue = ret.pastValue = (beginDate, endDate);
       ret.success = true;
     }
@@ -1744,7 +1728,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
       }
 
       var yearStr = year.toString().padLeft(4, '0');
-      ret.timex = yearStr + "-" + seasonTimex;
+      ret.timex = "$yearStr-$seasonTimex";
 
       ret.success = true;
       return ret;
@@ -1822,7 +1806,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
         year = referenceDate.year + swift;
       }
 
-      ret.timex = year.toString().padLeft(4, '0') + "-W" + num.toString().padLeft(2, '0');
+      ret.timex = "${year.toString().padLeft(4, '0')}-W${num.toString().padLeft(2, '0')}";
 
       var firstDay = DateUtil.createSafeDate(year, 1, 1);
       var firstThursday = firstDay.AddDays(DateTime.thursday - firstDay.weekday);
@@ -1945,7 +1929,7 @@ class BaseDatePeriodParser implements IDateTimeParser {
             // handle the case like "one/two thousand", "one/two hundred", etc.
             var er = config.IntegerExtractor().extract(centuryStr);
 
-            if (er.length == 0) {
+            if (er.isEmpty) {
               return ret;
             }
 

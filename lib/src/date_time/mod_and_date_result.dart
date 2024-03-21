@@ -11,10 +11,10 @@ class ModAndDateResult {
   }
 
   ModAndDateResult(DateTime beginDate, DateTime endDate) {
-    this.BeginDate = beginDate;
-    this.EndDate = endDate;
-    this.Mod = '';
-    this.DateList = [];
+    BeginDate = beginDate;
+    EndDate = endDate;
+    Mod = '';
+    DateList = [];
   }
 
   late DateTime BeginDate;
@@ -31,7 +31,7 @@ class ModAndDateResult {
     DateTime endDateResult = endDate;
     var isBusinessDay = timex.endsWith(DateTimeConstants.TimexBusinessDay);
     var businessDayCount = 0;
-    List<DateTime>? dateList = null;
+    List<DateTime>? dateList;
 
     if (isBusinessDay) {
       businessDayCount = int.parse(timex.substring(1, timex.length - 3));

@@ -172,7 +172,7 @@ class BaseTimePeriodParser implements IDateTimeParser {
           var endStr = DateTimeFormatUtil.ShortTime(endDateTime.hour, endMinute);
 
           ret.timex =
-              "(${beginStr},${endStr},${DateTimeFormatUtil.luisTimeSpan(endDateTime.difference(beginDateTime))})";
+              "($beginStr,$endStr,${DateTimeFormatUtil.luisTimeSpan(endDateTime.difference(beginDateTime))})";
 
           ret.futureValue = ret.pastValue = (beginDateTime, endDateTime);
 
@@ -256,13 +256,13 @@ class BaseTimePeriodParser implements IDateTimeParser {
           }
 
           if (isValid) {
-            var beginStr = "T" + beginHour.toString().padLeft(2, '0');
-            var endStr = "T" + endHour.toString().padLeft(2, '0');
+            var beginStr = "T${beginHour.toString().padLeft(2, '0')}";
+            var endStr = "T${endHour.toString().padLeft(2, '0')}";
 
             if (endHour >= beginHour) {
-              ret.timex = "(${beginStr},${endStr},PT${endHour - beginHour}H)";
+              ret.timex = "($beginStr,$endStr,PT${endHour - beginHour}H)";
             } else {
-              ret.timex = "(${beginStr},${endStr},PT${endHour - beginHour + 24}H)";
+              ret.timex = "($beginStr,$endStr,PT${endHour - beginHour + 24}H)";
             }
 
             // Try to get the timezone resolution

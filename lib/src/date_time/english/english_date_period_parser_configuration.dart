@@ -333,5 +333,5 @@ class EnglishDatePeriodParserConfiguration extends BaseDateTimeOptionsConfigurat
 
   List<String> yearTermsPadded = EnglishDateTime.YearTerms.map((str) => " $str ").toList();
 
-  List<String> monthTermsPadded = EnglishDateTime.MonthTerms.map((str) => " ${str} ").toList();
+  List<String> monthTermsPadded = EnglishDateTime.MonthTerms.map((str) => " $str ").toList();
 }

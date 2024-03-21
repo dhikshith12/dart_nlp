@@ -701,21 +701,17 @@ abstract interface class INumberParserConfiguration {
 
 //endregion
 
-/**
- * Used when requiring to normalize a token to a valid expression supported by the ImmutableDictionaries (language dictionaries)
- *
- * @param tokens  list of tokens to normalize
- * @param context context of the call
- * @return list of normalized tokens
- */
+/// Used when requiring to normalize a token to a valid expression supported by the ImmutableDictionaries (language dictionaries)
+///
+/// @param tokens  list of tokens to normalize
+/// @param context context of the call
+/// @return list of normalized tokens
   List<String> normalizeTokenSet(List<String> tokens, ParseResult context);
 
-/**
- * Used when requiring to convert a String to a valid number supported by the language
- *
- * @param numberStr composite number
- * @return value of the String
- */
+/// Used when requiring to convert a String to a valid number supported by the language
+///
+/// @param numberStr composite number
+/// @return value of the String
   int resolveCompositeNumber(String numberStr);
 }
 

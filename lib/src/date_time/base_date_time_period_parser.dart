@@ -165,9 +165,7 @@ class BaseDateTimePeriodParser implements IDateTimeParser {
       }
     } else {
       match = RegExpComposer.getMatchesSimple(config.AmDescRegex(), trimmedText).firstOrNull;
-      if (match == null) {
-        match = RegExpComposer.getMatchesSimple(config.PmDescRegex(), trimmedText).firstOrNull;
-      }
+      match ??= RegExpComposer.getMatchesSimple(config.PmDescRegex(), trimmedText).firstOrNull;
 
       if (match != null) {
         timeText = match.value;
@@ -361,26 +359,24 @@ class BaseDateTimePeriodParser implements IDateTimeParser {
       var hasSpecificTimePeriod = false;
       if (timePeriodErs.isNotEmpty) {
         var timePr = config.TimePeriodParser().parseDateTime(timePeriodErs[0], referenceTime);
-        if (timePr != null) {
-          var periodFuture = (timePr.value as DateTimeResolutionResult).futureValue as (DateTime, DateTime);
-          var periodPast = (timePr.value as DateTimeResolutionResult).pastValue as (DateTime, DateTime);
+        var periodFuture = (timePr.value as DateTimeResolutionResult).futureValue as (DateTime, DateTime);
+        var periodPast = (timePr.value as DateTimeResolutionResult).pastValue as (DateTime, DateTime);
 
-          if (periodFuture == periodPast) {
+        if (periodFuture == periodPast) {
+          beginHour = periodFuture.$1.hour;
+          endHour = periodFuture.$2.hour;
+        } else {
+          if (periodFuture.$1.hour >= beginHour || periodFuture.$2.hour <= endHour) {
             beginHour = periodFuture.$1.hour;
             endHour = periodFuture.$2.hour;
           } else {
-            if (periodFuture.$1.hour >= beginHour || periodFuture.$2.hour <= endHour) {
-              beginHour = periodFuture.$1.hour;
-              endHour = periodFuture.$2.hour;
-            } else {
-              beginHour = periodPast.$1.hour;
-              endHour = periodPast.$2.hour;
-            }
+            beginHour = periodPast.$1.hour;
+            endHour = periodPast.$2.hour;
           }
-
-          hasSpecificTimePeriod = true;
         }
-      }
+
+        hasSpecificTimePeriod = true;
+            }
 
       var pr = config.DateParser().parseDateTime(ers[0], referenceTime);
 
@@ -534,7 +530,7 @@ class BaseDateTimePeriodParser implements IDateTimeParser {
       dateResult.addAll(config.HolidayExtractor().extractDateTime(text, referenceTime));
     }
 
-    if (dateResult.length > 0) {
+    if (dateResult.isNotEmpty) {
       DateTimeParseResult pr = DateTimeParseResult(start: 0, length: 0, text: '');
       var beforeString = text.substring(0, dateResult.last.start).trimRight();
       var match = RegExpComposer.getMatchesSimple(config.PrefixDayRegex(), beforeString).firstOrNull;
@@ -603,7 +599,7 @@ class BaseDateTimePeriodParser implements IDateTimeParser {
 
     var ers = config.TimePeriodExtractor().extractDateTime(trimmedText, referenceTime);
 
-    if (ers.length == 0) {
+    if (ers.isEmpty) {
       return ParsePureNumberCases(text, referenceTime);
     } else if (ers.length == 1) {
       var timePeriodParseResult = config.TimePeriodParser().parse(ers[0]);
@@ -626,7 +622,7 @@ class BaseDateTimePeriodParser implements IDateTimeParser {
 
         // Try to add TokenBeforeDate if no result is found because it is not always included in the DateTimePeriod extraction
         // (e.g. "I'll leave on the 17 from 2 to 4 pm" -> "the 17 from 2 to 4 pm")
-        if (dateResult.length == 0) {
+        if (dateResult.isEmpty) {
           dateResult = config.DateExtractor()
               .extractDateTime(config.TokenBeforeDate() + trimmedText.substring(0, ers[0].start), referenceTime);
 
@@ -758,7 +754,7 @@ class BaseDateTimePeriodParser implements IDateTimeParser {
 
       // Try to add TokenBeforeDate if no result is found because it is not always included in the DateTimePeriod extraction
       // (e.g. "I'll leave on the 17 from 2 to 4 pm" -> "the 17 from 2 to 4 pm")
-      if (dateExtractResult.length == 0) {
+      if (dateExtractResult.isEmpty) {
         dateExtractResult = config.DateExtractor()
             .extractDateTime(config.TokenBeforeDate() + trimmedText.substring(0, match.index), referenceTime);
 
@@ -769,7 +765,7 @@ class BaseDateTimePeriodParser implements IDateTimeParser {
       }
 
       DateTime futureDate, pastDate;
-      if (dateExtractResult.length > 0) {
+      if (dateExtractResult.isNotEmpty) {
         var pr = config.DateParser().parseDateTime(dateExtractResult[0], referenceTime);
 
         if ((config.options.match(DateTimeOptions.TasksMode)) && (pr.value == null)) {
@@ -1145,9 +1141,7 @@ class BaseDateTimePeriodParser implements IDateTimeParser {
         }
 
         ret.timex =
-            "(${DateTimeFormatUtil.luisDateFromDateTime(beginTime)}T${DateTimeFormatUtil.luisTime(beginTime)}," +
-                "${DateTimeFormatUtil.luisDateFromDateTime(endTime)}T${DateTimeFormatUtil.luisTime(endTime)}," +
-                "${durationResult.timex})";
+            "(${DateTimeFormatUtil.luisDateFromDateTime(beginTime)}T${DateTimeFormatUtil.luisTime(beginTime)},${DateTimeFormatUtil.luisDateFromDateTime(endTime)}T${DateTimeFormatUtil.luisTime(endTime)},${durationResult.timex})";
 
         ret.futureValue = ret.pastValue = (beginTime, endTime);
         ret.success = true;

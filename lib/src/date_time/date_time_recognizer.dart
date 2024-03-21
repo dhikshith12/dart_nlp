@@ -6,14 +6,11 @@ import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:nlp/nlp.dart';
 import 'package:nlp/src/core/model_result.dart';
-import 'package:nlp/src/core/parser.dart';
 import 'package:nlp/src/core/string_utility.dart';
 import 'package:nlp/src/core/timex_utility.dart';
-import 'package:nlp/src/duration/base_duration_parser.dart';
 import 'package:nlp/src/date_time/date_time_format_util.dart';
 import 'package:nlp/src/date_time/date_time_parsing.dart';
 import 'package:nlp/src/date_time/date_util.dart';
-import 'package:nlp/src/date_time/english_date_time_parser.dart';
 
 class DateTimeRecognizer {
   static List<ModelResult> recognizeDateTime(String query) {
@@ -236,10 +233,6 @@ class DateTimeModel {
       return null;
     }
 
-    if (pr == null) {
-      return null;
-    }
-
     // Pop, restore the MOD string
     if (hasBefore && pr.value != null) {
       pr.start = pr.start - modStr.length;
@@ -389,7 +382,7 @@ class DateTimeModel {
     }
 
     final resolutions = <Map<String, String>>[];
-    var res = LinkedHashMap<String, Object>();
+    var res = <String, Object>{};
 
     final val = slot.value as DateTimeResolutionResult?;
     if (val == null) {
@@ -446,7 +439,7 @@ class DateTimeModel {
       }
     }
 
-    final pastResolutionStr = LinkedHashMap<String, String>();
+    final pastResolutionStr = LinkedHashMap<String, String>.from({});
     if ((slot.value as DateTimeResolutionResult).pastResolution != null) {
       pastResolutionStr.addAll((slot.value as DateTimeResolutionResult).pastResolution!);
     }
@@ -494,7 +487,7 @@ class DateTimeModel {
 
     if (comment != null && comment.isNotEmpty && TimexUtility.hasDoubleTimex(comment) && timex != null) {
       res = TimexUtility.processDoubleTimex(
-        res,
+        LinkedHashMap.from(res),
         DateTimeConstants.ResolveToFuture,
         DateTimeConstants.ResolveToPast,
         timex,
@@ -573,7 +566,7 @@ class DateTimeModel {
   }
 
   static Map<String, String> generateResolution(String type, Map<String, String> resolutionDic, String? mod) {
-    final res = LinkedHashMap<String, String>();
+    final res = <String, String>{};
 
     if (type == DateTimeConstants.SYS_DATETIME_DATETIME) {
       addSingleDateTimeToResolution(resolutionDic, TimeTypeConstants.DATETIME, mod, res);
@@ -608,7 +601,7 @@ class DateTimeModel {
     if (resolutionDic.containsKey(keyName)) {
       final resolution = resolutionDic[keyName] as Map<String, String>;
 
-      final resolutionPm = LinkedHashMap<String, String>();
+      final resolutionPm = <String, String>{};
 
       if (!resolutionDic.containsKey(DateTimeResolutionKey.Timex)) {
         return;

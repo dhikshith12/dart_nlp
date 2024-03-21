@@ -302,7 +302,7 @@ class TimexUtility {
     var weekTimex = GenerateWeekTimexFromWeekNum(weekNum);
     var yearTimex = DateTimeFormatUtil.luisDateFromYear(year);
 
-    return "${yearTimex}-${weekTimex}";
+    return "$yearTimex-$weekTimex";
   }
 
   static String GenerateDecadeTimex(int beginYear, int totalLastYear, int decade, bool inputCentury) {
@@ -321,20 +321,20 @@ class TimexUtility {
       endStr = endStr.replaceAll(DateTimeConstants.TimexFuzzyYear, endYearStr);
     }
 
-    return "(${beginStr},${endStr},${DateTimeConstants.GeneralPeriodPrefix}${totalLastYear}${DateTimeConstants.TimexYear})";
+    return "($beginStr,$endStr,${DateTimeConstants.GeneralPeriodPrefix}$totalLastYear${DateTimeConstants.TimexYear})";
   }
 
   static String GenerateWeekOfMonthTimex(int year, int month, int weekNum) {
     var weekTimex = GenerateWeekTimexFromWeekNum(weekNum);
     var monthTimex = DateTimeFormatUtil.luisDateFromComponents(year, month);
 
-    return "${monthTimex}-${weekTimex}";
+    return "$monthTimex-$weekTimex";
   }
 
   static String GenerateSetTimex(String durationType, double durationLength, [double multiplier = 1]) {
     final text = NumberFormat.decimalPattern().format(durationLength * multiplier);
     // TODO :  multiplier:0.#;
-    return "P${text}${durationType}";
+    return "P$text$durationType";
   }
 
   static String CombineDateTimeTimex(String timeTimex1, String dateTimeTimex2, DateTime dateTime1) {
@@ -348,7 +348,7 @@ class TimexUtility {
   }
 
   static TimeOfDayResolutionResult ResolveTimeOfDay(String tod) {
-    var result = new TimeOfDayResolutionResult();
+    var result = TimeOfDayResolutionResult();
     switch (tod) {
       case DateTimeConstants.EarlyMorning:
         result.Timex = DateTimeConstants.EarlyMorning;

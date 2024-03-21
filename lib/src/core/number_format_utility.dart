@@ -83,19 +83,19 @@ class LongFormatType {
 // Reference Value : 1234567.89
 
 // 1,234,567
-  static LongFormatType IntegerNumComma = LongFormatType(',', '\0');
+  static LongFormatType IntegerNumComma = LongFormatType(',', '0');
 
 // 1.234.567
-  static LongFormatType IntegerNumDot = LongFormatType('.', '\0');
+  static LongFormatType IntegerNumDot = LongFormatType('.', '0');
 
 // 1 234 567
-  static LongFormatType IntegerNumBlank = LongFormatType(' ', '\0');
+  static LongFormatType IntegerNumBlank = LongFormatType(' ', '0');
 
 // 1 234 567
-  static LongFormatType IntegerNumNoBreakSpace = LongFormatType(Constants.NO_BREAK_SPACE, '\0');
+  static LongFormatType IntegerNumNoBreakSpace = LongFormatType(Constants.NO_BREAK_SPACE, '0');
 
 // 1'234'567
-  static LongFormatType IntegerNumQuote = LongFormatType('\'', '\0');
+  static LongFormatType IntegerNumQuote = LongFormatType('\'', '0');
 
 // 1,234,567.89
   static LongFormatType DoubleNumCommaDot = LongFormatType(',', '.');
